@@ -1,3 +1,4 @@
+mod daythree;
 mod puzzlefour;
 mod puzzleone;
 mod puzzlethree;
@@ -7,5 +8,6 @@ fn main() {
     // puzzleone::find_answer();
     // puzzletwo::find_answer();
     // puzzlethree::find_answer();
-    puzzlefour::find_answer();
+    // puzzlefour::find_answer();
+    daythree::puzzlefive_count_trees();
 }
