@@ -1,3 +1,4 @@
+mod dayfour;
 mod daythree;
 mod puzzlefour;
 mod puzzleone;
@@ -10,5 +11,6 @@ fn main() {
     // puzzlethree::find_answer();
     // puzzlefour::find_answer();
     // daythree::puzzlefive_count_trees();
-    daythree::puzzlesix_count_trees_and_multiply();
+    // daythree::puzzlesix_count_trees_and_multiply();
+    dayfour::count_valid_passports();
 }
