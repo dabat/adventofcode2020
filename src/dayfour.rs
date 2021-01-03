@@ -69,6 +69,18 @@ pub fn count_valid_passports() {
         pid: None,
     };
     println!("{:#?}", p);
+    println!("this passport is valid: {}", p.is_valid());
+    let p = Passport {
+        byr: Some("sad".to_string()),
+        iyr: Some("sadfasdf".to_string()),
+        eyr: Some("sdv2f2".to_string()),
+        hgt: Some("sdf".to_string()),
+        cid: None,
+        ecl: Some("sdflaj0".to_string()),
+        hcl: Some("adsfasdf".to_string()),
+        pid: Some("sdglksdg".to_string()),
+    };
+    println!("this passport is valid: {}", p.is_valid());
 }
 
 #[derive(Debug)]
@@ -81,4 +93,20 @@ pub struct Passport {
     ecl: Option<String>, //Eye Color
     pid: Option<String>, //Passport ID
     cid: Option<String>, //Country ID
+}
+
+impl Passport {
+    fn is_valid(&self) -> bool {
+        if self.byr.is_some()
+            && self.iyr.is_some()
+            && self.eyr.is_some()
+            && self.hgt.is_some()
+            && self.hcl.is_some()
+            && self.ecl.is_some()
+            && self.pid.is_some()
+        {
+            return true;
+        }
+        false
+    }
 }
