@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::vec;
 /*
 --- Day 4: Passport Processing ---
 
@@ -54,59 +56,139 @@ According to the above rules, your improved system would report 2 valid passport
 Count the number of valid passports - those that have all required fields.
 Treat cid as optional. In your batch file, how many passports are valid?
 https://adventofcode.com/2020/day/4
+total passports: 285
+valid passports: 208
 */
 
 pub fn count_valid_passports() {
     // import the passport input file into a vector of Passport structs
-    let p = Passport {
-        byr: Some("sad".to_string()),
-        iyr: None,
-        eyr: None,
-        hgt: Some("sdf".to_string()),
-        cid: None,
-        ecl: None,
-        hcl: Some("adsfasdf".to_string()),
-        pid: None,
-    };
-    println!("{:#?}", p);
-    println!("this passport is valid: {}", p.is_valid());
-    let p = Passport {
-        byr: Some("sad".to_string()),
-        iyr: Some("sadfasdf".to_string()),
-        eyr: Some("sdv2f2".to_string()),
-        hgt: Some("sdf".to_string()),
-        cid: None,
-        ecl: Some("sdflaj0".to_string()),
-        hcl: Some("adsfasdf".to_string()),
-        pid: Some("sdglksdg".to_string()),
-    };
-    println!("this passport is valid: {}", p.is_valid());
+    let passport_strings = read_passport_file();
+    // println!("{:?}", passport_strings);
+    let mut passports: Vec<Passport> = vec![];
+    for passport_string in passport_strings {
+        let passport = passport_from_info(&passport_string);
+        // println!("{:?}", passport);
+        passports.push(passport);
+    }
+    // iterate through the vector and count the valid passports
+    let mut valid_passport_count = 0;
+    for passport in &passports {
+        if passport.is_valid() {
+            valid_passport_count += 1;
+        }
+    }
+
+    // print out the count of valid passports
+    println!("total passports: {}", &passports.len());
+    println!("valid passports: {}", valid_passport_count);
 }
 
 #[derive(Debug)]
 pub struct Passport {
     byr: Option<String>, //Birth Year
-    iyr: Option<String>, //Issue Year
-    eyr: Option<String>, //Expiration Year
-    hgt: Option<String>, //Height
-    hcl: Option<String>, //Hair Color
-    ecl: Option<String>, //Eye Color
-    pid: Option<String>, //Passport ID
     cid: Option<String>, //Country ID
+    ecl: Option<String>, //Eye Color
+    eyr: Option<String>, //Expiration Year
+    hcl: Option<String>, //Hair Color
+    hgt: Option<String>, //Height
+    iyr: Option<String>, //Issue Year
+    pid: Option<String>, //Passport ID
 }
 
 impl Passport {
+    fn new(
+        byr: Option<String>,
+        cid: Option<String>,
+        ecl: Option<String>,
+        eyr: Option<String>,
+        hcl: Option<String>,
+        hgt: Option<String>,
+        iyr: Option<String>,
+        pid: Option<String>,
+    ) -> Passport {
+        Passport {
+            byr,
+            cid,
+            ecl,
+            eyr,
+            hcl,
+            hgt,
+            iyr,
+            pid,
+        }
+    }
     fn is_valid(&self) -> bool {
         if self.byr.is_some()
-            && self.iyr.is_some()
-            && self.eyr.is_some()
-            && self.hgt.is_some()
-            && self.hcl.is_some()
             && self.ecl.is_some()
+            && self.eyr.is_some()
+            && self.hcl.is_some()
+            && self.hgt.is_some()
+            && self.iyr.is_some()
             && self.pid.is_some()
         {
             return true;
         }
         false
     }
+}
+
+fn read_passport_file() -> Vec<String> {
+    std::fs::read_to_string("day4_input.txt")
+        .unwrap()
+        .split("\n\n")
+        .into_iter()
+        .map(String::from)
+        .map(|s| s.replace("\n", " "))
+        .collect()
+}
+
+fn passport_from_info(info: &str) -> Passport {
+    // accept a string with passport info
+    // e.g. info = "eyr:2027 hcl:#7d3b0c pid:377701492 ecl:gry byr:1971 hgt:174cm iyr:2023"
+    // split the string into parts and collect the parts into a hashmap
+    // https://stackoverflow.com/questions/65373328/split-key-value-pairs-from-string-into-hashmap-in-one-line
+    // https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=43f5f4565d37fdb7d79bcddbf1b758c9
+    // string.split_whitespace().map(|s| s.split_at(s.find(":").unwrap())).map(|(key, val)| (key, &val[1..])).collect()
+
+    let data: HashMap<String, String> = info
+        .split_whitespace()
+        .map(|s| s.split_at(s.find(":").unwrap()))
+        .map(|(key, value)| (String::from(key), String::from(&value[1..])))
+        .collect();
+
+    // create a passport using the hashmap of parts
+    Passport::new(
+        match data.get("byr") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("cid") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("ecl") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("eyr") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("hcl") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("hgt") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("iyr") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+        match data.get("pid") {
+            Some(s) => Some(s.to_owned()),
+            None => None,
+        },
+    )
 }
