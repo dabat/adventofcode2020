@@ -60,7 +60,7 @@ total passports: 285
 valid passports: 208
 */
 
-pub fn count_valid_passports() {
+pub fn count_valid_passports(use_rules: bool) {
     // import the passport input file into a vector of Passport structs
     let passport_strings = read_passport_file();
     // println!("{:?}", passport_strings);
@@ -73,8 +73,14 @@ pub fn count_valid_passports() {
     // iterate through the vector and count the valid passports
     let mut valid_passport_count = 0;
     for passport in &passports {
-        if passport.is_valid() {
-            valid_passport_count += 1;
+        if use_rules {
+            if passport.is_valid_rules() {
+                valid_passport_count += 1;
+            }
+        } else {
+            if passport.is_valid() {
+                valid_passport_count += 1;
+            }
         }
     }
 
@@ -129,6 +135,73 @@ impl Passport {
             return true;
         }
         false
+    }
+    fn is_valid_rules(&self) -> bool {
+        let mut is_valid = false;
+        let mut byr_is_valid = false;
+        let mut iyr_is_valid = false;
+        let mut eyr_is_valid = false;
+        let mut hgt_is_valid = false;
+
+        // byr (Birth Year) - four digits; at least 1920 and at most 2002.
+        if self.byr.is_some() {
+            let birth_year: i32 = self.byr.to_owned().unwrap().parse().unwrap_or_default();
+            match birth_year {
+                1920..=2002 => byr_is_valid = true,
+                _ => byr_is_valid = false,
+            }
+            // println!(
+            //     "byr:{:?} 1920..=2002 {}",
+            //     self.byr.to_owned().unwrap(),
+            //     byr_is_valid
+            // );
+        }
+        // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+        if self.iyr.is_some() {
+            let issue_year: i32 = self.iyr.to_owned().unwrap().parse().unwrap_or_default();
+            match issue_year {
+                2010..=2020 => iyr_is_valid = true,
+                _ => iyr_is_valid = false,
+            }
+        }
+        // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+        if self.eyr.is_some() {
+            let expiration_year: i32 = self.eyr.to_owned().unwrap().parse().unwrap_or_default();
+            match expiration_year {
+                2020..=2030 => eyr_is_valid = true,
+                _ => eyr_is_valid = false,
+            }
+        }
+        // hgt (Height) - a number followed by either cm or in:
+        //     If cm, the number must be at least 150 and at most 193.
+        //     If in, the number must be at least 59 and at most 76.
+        if self.hgt.is_some() {
+            let height: i32;
+            let hgt = self.hgt.to_owned().unwrap();
+
+            if hgt.contains("cm") {
+                height = hgt[0..hgt.find("cm").unwrap()].parse().unwrap();
+                match height {
+                    150..=193 => hgt_is_valid = true,
+                    _ => hgt_is_valid = false,
+                }
+            } else if hgt.contains("in") {
+                height = hgt[0..hgt.find("in").unwrap()].parse().unwrap();
+                match height {
+                    59..=76 => hgt_is_valid = true,
+                    _ => hgt_is_valid = false,
+                };
+            }
+        }
+        // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        // pid (Passport ID) - a nine-digit number, including leading zeroes.
+        // cid (Country ID) - ignored, missing or not.
+
+        if byr_is_valid && iyr_is_valid && eyr_is_valid && hgt_is_valid {
+            is_valid = true;
+        }
+        is_valid
     }
 }
 
@@ -192,3 +265,30 @@ fn passport_from_info(info: &str) -> Passport {
         },
     )
 }
+
+/*
+--- Part Two ---
+
+The line is moving more quickly now,
+but you overhear airport security talking about how passports with invalid data are getting through.
+Better add some data validation, quick!
+
+You can continue to ignore the cid field,
+but each other field has strict rules about what values are valid for automatic validation:
+
+    byr (Birth Year) - four digits; at least 1920 and at most 2002.
+    iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+    eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+    hgt (Height) - a number followed by either cm or in:
+        If cm, the number must be at least 150 and at most 193.
+        If in, the number must be at least 59 and at most 76.
+    hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+    ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+    pid (Passport ID) - a nine-digit number, including leading zeroes.
+    cid (Country ID) - ignored, missing or not.
+
+Your job is to count the passports where all required fields are both present and valid according to the above rules.
+Count the number of valid passports - those that have all required fields and valid values.
+Continue to treat cid as optional.
+In your batch file, how many passports are valid?
+*/

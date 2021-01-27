@@ -12,5 +12,5 @@ fn main() {
     // puzzlefour::find_answer();
     // daythree::puzzlefive_count_trees();
     // daythree::puzzlesix_count_trees_and_multiply();
-    dayfour::count_valid_passports();
+    dayfour::count_valid_passports(true);
 }
