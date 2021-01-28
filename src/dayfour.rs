@@ -142,6 +142,7 @@ impl Passport {
         let mut iyr_is_valid = false;
         let mut eyr_is_valid = false;
         let mut hgt_is_valid = false;
+        let mut hcl_is_valid = false;
 
         // byr (Birth Year) - four digits; at least 1920 and at most 2002.
         if self.byr.is_some() {
@@ -150,11 +151,6 @@ impl Passport {
                 1920..=2002 => byr_is_valid = true,
                 _ => byr_is_valid = false,
             }
-            // println!(
-            //     "byr:{:?} 1920..=2002 {}",
-            //     self.byr.to_owned().unwrap(),
-            //     byr_is_valid
-            // );
         }
         // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
         if self.iyr.is_some() {
@@ -194,11 +190,32 @@ impl Passport {
             }
         }
         // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        if self.hcl.is_some() {
+            let hcl = self.hcl.to_owned().unwrap();
+            let characters_allowed = vec![
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+            ];
+            if hcl.chars().nth(0).unwrap() == '#' {
+                let hair_color = &hcl[1..];
+                if hair_color.len() == 6 {
+                    for character in hair_color.chars() {
+                        match characters_allowed.contains(&character) {
+                            true => hcl_is_valid = true,
+                            false => {
+                                hcl_is_valid = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            // println!("{} valid=={}", hcl, hcl_is_valid);
+        }
         // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
         // pid (Passport ID) - a nine-digit number, including leading zeroes.
         // cid (Country ID) - ignored, missing or not.
 
-        if byr_is_valid && iyr_is_valid && eyr_is_valid && hgt_is_valid {
+        if byr_is_valid && iyr_is_valid && eyr_is_valid && hgt_is_valid && hcl_is_valid {
             is_valid = true;
         }
         is_valid
@@ -291,4 +308,7 @@ Your job is to count the passports where all required fields are both present an
 Count the number of valid passports - those that have all required fields and valid values.
 Continue to treat cid as optional.
 In your batch file, how many passports are valid?
+
+implemented `is_valid_rules` method on Passport to solve this problem
+
 */
