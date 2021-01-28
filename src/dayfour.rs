@@ -123,6 +123,7 @@ impl Passport {
             pid,
         }
     }
+
     fn is_valid(&self) -> bool {
         if self.byr.is_some()
             && self.ecl.is_some()
@@ -136,6 +137,7 @@ impl Passport {
         }
         false
     }
+
     fn is_valid_rules(&self) -> bool {
         let mut is_valid = false;
         let mut byr_is_valid = false;
@@ -211,12 +213,32 @@ impl Passport {
             }
             // println!("{} valid=={}", hcl, hcl_is_valid);
         }
-        // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
         // pid (Passport ID) - a nine-digit number, including leading zeroes.
         // cid (Country ID) - ignored, missing or not.
 
-        if byr_is_valid && iyr_is_valid && eyr_is_valid && hgt_is_valid && hcl_is_valid {
+        if byr_is_valid
+            && iyr_is_valid
+            && eyr_is_valid
+            && hgt_is_valid
+            && hcl_is_valid
+            && self.ecl_is_valid()
+        {
             is_valid = true;
+        }
+        is_valid
+    }
+
+    fn ecl_is_valid(&self) -> bool {
+        // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        let mut is_valid = false;
+        let colors_allowed = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+        if self.ecl.is_some() {
+            let eye_color = self.ecl.to_owned().unwrap();
+            match colors_allowed.contains(&eye_color.as_str()) {
+                true => is_valid = true,
+                false => is_valid = false,
+            }
+            // println!("{} {}", &eye_color, &is_valid);
         }
         is_valid
     }
