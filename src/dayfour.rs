@@ -61,6 +61,7 @@ valid passports: 208
 */
 
 pub fn count_valid_passports(use_rules: bool) {
+    // `use_rules`: false runs part 1 test, true runs part 2 validation
     // import the passport input file into a vector of Passport structs
     let passport_strings = read_passport_file();
     // println!("{:?}", passport_strings);
@@ -139,40 +140,68 @@ impl Passport {
     }
 
     fn is_valid_rules(&self) -> bool {
+        // cid (Country ID) - ignored, missing or not.
         let mut is_valid = false;
-        let mut byr_is_valid = false;
-        let mut iyr_is_valid = false;
-        let mut eyr_is_valid = false;
-        let mut hgt_is_valid = false;
-        let mut hcl_is_valid = false;
 
+        if self.byr_is_valid()
+            && self.iyr_is_valid()
+            && self.eyr_is_valid()
+            && self.hgt_is_valid()
+            && self.hcl_is_valid()
+            && self.ecl_is_valid()
+            && self.pid_is_valid()
+        {
+            is_valid = true;
+        }
+
+        is_valid
+    }
+
+    fn byr_is_valid(&self) -> bool {
         // byr (Birth Year) - four digits; at least 1920 and at most 2002.
+        let mut is_valid = false;
         if self.byr.is_some() {
             let birth_year: i32 = self.byr.to_owned().unwrap().parse().unwrap_or_default();
             match birth_year {
-                1920..=2002 => byr_is_valid = true,
-                _ => byr_is_valid = false,
+                1920..=2002 => is_valid = true,
+                _ => is_valid = false,
             }
         }
+        is_valid
+    }
+
+    fn iyr_is_valid(&self) -> bool {
         // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+        let mut is_valid = false;
         if self.iyr.is_some() {
             let issue_year: i32 = self.iyr.to_owned().unwrap().parse().unwrap_or_default();
             match issue_year {
-                2010..=2020 => iyr_is_valid = true,
-                _ => iyr_is_valid = false,
+                2010..=2020 => is_valid = true,
+                _ => is_valid = false,
             }
         }
+        is_valid
+    }
+
+    fn eyr_is_valid(&self) -> bool {
         // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+        let mut is_valid = false;
         if self.eyr.is_some() {
             let expiration_year: i32 = self.eyr.to_owned().unwrap().parse().unwrap_or_default();
             match expiration_year {
-                2020..=2030 => eyr_is_valid = true,
-                _ => eyr_is_valid = false,
+                2020..=2030 => is_valid = true,
+                _ => is_valid = false,
             }
         }
+        is_valid
+    }
+
+    fn hgt_is_valid(&self) -> bool {
         // hgt (Height) - a number followed by either cm or in:
         //     If cm, the number must be at least 150 and at most 193.
         //     If in, the number must be at least 59 and at most 76.
+        let mut is_valid = false;
+
         if self.hgt.is_some() {
             let height: i32;
             let hgt = self.hgt.to_owned().unwrap();
@@ -180,50 +209,45 @@ impl Passport {
             if hgt.contains("cm") {
                 height = hgt[0..hgt.find("cm").unwrap()].parse().unwrap();
                 match height {
-                    150..=193 => hgt_is_valid = true,
-                    _ => hgt_is_valid = false,
+                    150..=193 => is_valid = true,
+                    _ => is_valid = false,
                 }
             } else if hgt.contains("in") {
                 height = hgt[0..hgt.find("in").unwrap()].parse().unwrap();
                 match height {
-                    59..=76 => hgt_is_valid = true,
-                    _ => hgt_is_valid = false,
+                    59..=76 => is_valid = true,
+                    _ => is_valid = false,
                 };
             }
         }
+        is_valid
+    }
+
+    fn hcl_is_valid(&self) -> bool {
         // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        let mut is_valid = false;
+
         if self.hcl.is_some() {
             let hcl = self.hcl.to_owned().unwrap();
             let characters_allowed = vec![
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
             ];
+
             if hcl.chars().nth(0).unwrap() == '#' {
                 let hair_color = &hcl[1..];
+
                 if hair_color.len() == 6 {
                     for character in hair_color.chars() {
                         match characters_allowed.contains(&character) {
-                            true => hcl_is_valid = true,
+                            true => is_valid = true,
                             false => {
-                                hcl_is_valid = false;
+                                is_valid = false;
                                 break;
                             }
                         }
                     }
                 }
             }
-            // println!("{} valid=={}", hcl, hcl_is_valid);
-        }
-        // pid (Passport ID) - a nine-digit number, including leading zeroes.
-        // cid (Country ID) - ignored, missing or not.
-
-        if byr_is_valid
-            && iyr_is_valid
-            && eyr_is_valid
-            && hgt_is_valid
-            && hcl_is_valid
-            && self.ecl_is_valid()
-        {
-            is_valid = true;
         }
         is_valid
     }
@@ -232,14 +256,34 @@ impl Passport {
         // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
         let mut is_valid = false;
         let colors_allowed = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+
         if self.ecl.is_some() {
             let eye_color = self.ecl.to_owned().unwrap();
+
             match colors_allowed.contains(&eye_color.as_str()) {
                 true => is_valid = true,
                 false => is_valid = false,
             }
-            // println!("{} {}", &eye_color, &is_valid);
         }
+
+        is_valid
+    }
+
+    fn pid_is_valid(&self) -> bool {
+        // pid (Passport ID) - a nine-digit number, including leading zeroes.
+        let mut is_valid = false;
+
+        if self.pid.is_some() {
+            let pid = self.pid.to_owned().unwrap();
+
+            if pid.len() == 9 {
+                match pid.parse::<usize>() {
+                    Ok(_number) => is_valid = true,
+                    Err(_e) => is_valid = false,
+                }
+            }
+        }
+
         is_valid
     }
 }
@@ -332,5 +376,6 @@ Continue to treat cid as optional.
 In your batch file, how many passports are valid?
 
 implemented `is_valid_rules` method on Passport to solve this problem
-
+total passports: 285
+valid passports: 167
 */
