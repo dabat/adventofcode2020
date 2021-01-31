@@ -1,6 +1,5 @@
 /*
 --- Day 5: Binary Boarding ---
-
 You board your plane only to discover a new problem: you dropped your boarding pass!
 You aren't sure which seat is yours,
 and all of the flight attendants are busy with the flood of people that suddenly made it through passport control.
@@ -52,26 +51,73 @@ Here are some other boarding passes:
     BBFFBBFRLL: row 102, column 4, seat ID 820.
 
 As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?
+highest seat id: 935
 
+--- Part Two ---
+Ding! The "fasten seat belt" signs have turned on. Time to find your seat.
+It's a completely full flight, so your seat should be the only missing boarding pass in your list.
+However, there's a catch: some of the seats at the very front and back of the plane don't exist on this aircraft,
+so they'll be missing from your list as well.
+
+Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.
+
+What is the ID of your seat?
+my seat id: 743
  */
+use crate::utils::*;
+
 pub fn part_one() {
-    find_highest_seat_id()
+    let seat_ids = find_seat_ids();
+    println!("highest seat id: {:?}", seat_ids.last().unwrap());
 }
 
-fn find_highest_seat_id() {
-    let passes = vec!["BFFFBBFRRR", "FFFBBBFRRR", "BBFFBBFRLL"];
-    // let list: Vec<u32> = (0..=127).collect();
-    // println!("{:?}", list);
-    let pass = decode("FBFBBFFRLR");
-    // for pass in passes {
-    //     decode(pass);
-    // }
-    println!("{:?}", pass);
+pub fn part_two() {
+    let my_seat_id = find_my_seat_id();
+    println!("my seat id: {}", my_seat_id);
 }
 
-// fn read_boarding_pass_file() -> Vec<String> {}
+fn find_my_seat_id() -> u32 {
+    let seat_ids = find_seat_ids();
+    let mut my_seat_id: u32 = 0;
+
+    for index in 0..seat_ids.len() {
+        let id_this = seat_ids.get(index).unwrap();
+        let id_next_expected: u32 = id_this + 1;
+        let id_next_actual: u32 = *seat_ids.get((index + 1) as usize).unwrap();
+
+        if id_next_expected != id_next_actual {
+            my_seat_id = id_next_expected;
+            break;
+        }
+    }
+
+    my_seat_id
+}
+
+fn find_seat_ids() -> Vec<u32> {
+    let passes = read_input_file("day5_input.txt");
+    let mut seat_ids: Vec<u32> = vec![];
+
+    for pass in passes {
+        println!("{}", pass);
+        let pass_decoded = decode(&pass);
+        println!("{:?}", pass_decoded);
+        seat_ids.push(pass_decoded.seat_id);
+    }
+    seat_ids.sort();
+    println!("seat_ids: {:?}", seat_ids);
+    seat_ids
+}
 
 fn decode(coded_boarding_pass: &str) -> BoardingPass {
+    let row = decode_row(coded_boarding_pass);
+    let column = decode_column(coded_boarding_pass);
+    let seat_id = row * 8 + column;
+
+    BoardingPass::new(row, column, seat_id)
+}
+
+fn decode_row(coded_boarding_pass: &str) -> u32 {
     let rows: Vec<u32> = (0..=127).collect();
     let row_code = &coded_boarding_pass[0..=6];
     let row: u32;
@@ -91,9 +137,12 @@ fn decode(coded_boarding_pass: &str) -> BoardingPass {
     }
 
     row = *row_maybe.first().unwrap();
-    println!("row_maybe=={:?} len=={}", row_maybe, row_maybe.len());
+    println!("rows=={:?}", row_maybe);
     println!("row=={:?}", row);
+    row
+}
 
+fn decode_column(coded_boarding_pass: &str) -> u32 {
     let columns: Vec<u32> = (0..=7).collect();
     let mut column_maybe: &[u32] = &columns;
     let column_code = &coded_boarding_pass[7..=9];
@@ -113,13 +162,10 @@ fn decode(coded_boarding_pass: &str) -> BoardingPass {
     }
 
     column = *column_maybe.first().unwrap();
-    println!("column_maybe=={:?}", column_maybe);
-    println!("len=={}", column_maybe.len());
+    println!("columns=={:?}", column_maybe);
     println!("column=={:?}", column);
 
-    let seat_id = row * 8 + column;
-
-    BoardingPass::new(row, column, seat_id)
+    column
 }
 
 #[derive(Debug)]
