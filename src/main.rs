@@ -1,7 +1,6 @@
-use dayfive::part_two;
-
 mod dayfive;
 mod dayfour;
+mod daysix;
 mod daythree;
 mod puzzlefour;
 mod puzzleone;
@@ -17,5 +16,6 @@ fn main() {
     // daythree::puzzlesix_count_trees_and_multiply();
     // dayfour::count_valid_passports(true);
     // dayfive::part_one();
-    dayfive::part_two();
+    // dayfive::part_two();
+    daysix::part_one();
 }
