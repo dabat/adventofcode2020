@@ -1,3 +1,5 @@
+use dayfive::part_two;
+
 mod dayfive;
 mod dayfour;
 mod daysix;
@@ -17,5 +19,6 @@ fn main() {
     // dayfour::count_valid_passports(true);
     // dayfive::part_one();
     // dayfive::part_two();
-    daysix::part_one();
+    // daysix::part_one();
+    daysix::part_two();
 }
