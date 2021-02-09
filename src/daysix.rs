@@ -95,20 +95,24 @@ sum=3596
 */
 use std::collections::{HashMap, HashSet};
 
-pub fn part_one() {
+pub fn day6_part1() {
     let groups = read_customs_file_groups();
-    println!("{:?}", groups);
+    // println!("{:?}", groups);
     let group_counts: Vec<usize> = count_group_answers(groups);
-    println!("{:?}", group_counts);
+    // println!("{:?}", group_counts);
     let group_count_sum: usize = group_counts.iter().sum();
-    println!("{:?}", group_count_sum);
+    println!("Day 6 Part 1");
+    println!("For each group, count the number of questions to which anyone answered \"yes\". What is the sum of those counts?");
+    println!("sum={:?}", group_count_sum);
 }
 
-pub fn part_two() {
+pub fn day6_part2() {
     let groups = read_customs_file_groups();
     let counts = count_group_answers_all(groups);
     let sum: usize = counts.iter().sum();
-    println!("counts={:?}", counts);
+    // println!("counts={:?}", counts);
+    println!("Day 6 Part 2");
+    println!("For each group, count the number of questions to which everyone answered \"yes\". What is the sum of those counts?");
     println!("sum={}", sum);
 }
 

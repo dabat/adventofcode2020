@@ -66,13 +66,17 @@ my seat id: 743
  */
 use crate::utils::*;
 
-pub fn part_one() {
+pub fn day5_part1() {
     let seat_ids = find_seat_ids();
+    println!("Day 5 Part 1");
+    println!("As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?");
     println!("highest seat id: {:?}", seat_ids.last().unwrap());
 }
 
-pub fn part_two() {
+pub fn day5_part2() {
     let my_seat_id = find_my_seat_id();
+    println!("Day 5 Part 2");
+    println!("What is the ID of your seat?");
     println!("my seat id: {}", my_seat_id);
 }
 
@@ -99,13 +103,13 @@ fn find_seat_ids() -> Vec<u32> {
     let mut seat_ids: Vec<u32> = vec![];
 
     for pass in passes {
-        println!("{}", pass);
+        // println!("{}", pass);
         let pass_decoded = decode(&pass);
-        println!("{:?}", pass_decoded);
+        // println!("{:?}", pass_decoded);
         seat_ids.push(pass_decoded.seat_id);
     }
     seat_ids.sort();
-    println!("seat_ids: {:?}", seat_ids);
+    // println!("seat_ids: {:?}", seat_ids);
     seat_ids
 }
 
@@ -133,12 +137,12 @@ fn decode_row(coded_boarding_pass: &str) -> u32 {
             _ => &[], //no-op to silence compiler error about non-exhaustive match arms
         };
 
-        println!("code: {} rows: {:?}", code, &row_maybe);
+        // println!("code: {} rows: {:?}", code, &row_maybe);
     }
 
     row = *row_maybe.first().unwrap();
-    println!("rows=={:?}", row_maybe);
-    println!("row=={:?}", row);
+    // println!("rows=={:?}", row_maybe);
+    // println!("row=={:?}", row);
     row
 }
 
@@ -158,12 +162,12 @@ fn decode_column(coded_boarding_pass: &str) -> u32 {
             _ => &[],
         };
 
-        println!("code: {} columns: {:?}", code, &column_maybe);
+        // println!("code: {} columns: {:?}", code, &column_maybe);
     }
 
     column = *column_maybe.first().unwrap();
-    println!("columns=={:?}", column_maybe);
-    println!("column=={:?}", column);
+    // println!("columns=={:?}", column_maybe);
+    // println!("column=={:?}", column);
 
     column
 }

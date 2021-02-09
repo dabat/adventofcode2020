@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::vec;
 /*
 --- Day 4: Passport Processing ---
 
@@ -88,8 +86,24 @@ implemented `is_valid_rules` method on Passport to solve this problem
 total passports: 285
 valid passports: 167
 */
+use std::collections::HashMap;
+use std::vec;
 
-pub fn count_valid_passports(use_rules: bool) {
+pub fn day4_part1() {
+    println!(
+        "Count the number of valid passports - those that have all required fields. Treat cid as optional. In your batch file, how many passports are valid?"
+    );
+    count_valid_passports(false);
+}
+
+pub fn day4_part2() {
+    println!(
+        "Count the number of valid passports - those that have all required fields and valid values. Continue to treat cid as optional. In your batch file, how many passports are valid?"
+    );
+    count_valid_passports(true);
+}
+
+fn count_valid_passports(use_rules: bool) {
     // `use_rules`: false runs part 1 test, true runs part 2 validation
     // import the passport input file into a vector of Passport structs
     let passport_strings = read_passport_file();
