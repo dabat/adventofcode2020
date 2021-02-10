@@ -1,11 +1,9 @@
-pub fn print_answer(answer: &str) {
-    println!("{}", "#".repeat(50));
-    if !answer.is_empty() {
-        println!("the answer you found! 🚀 ... {}", answer);
-    } else {
-        println!("sorry... no answer found! 😬");
-    }
-    println!("{}", "#".repeat(50));
+pub fn print_answer(day: u32, part: u32, question: &str, answer: &str) {
+    println!("{}", "-".repeat(50));
+    println!("..... Day {} - Part {} .....", day, part);
+    println!("{}", question);
+    println!("{}", answer);
+    println!("{}", "-".repeat(50));
 }
 
 pub fn read_input_file(file_name: &str) -> Vec<String> {

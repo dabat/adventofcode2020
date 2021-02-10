@@ -7,12 +7,12 @@ mod daytwo;
 mod utils;
 
 fn main() {
-    dayone::day_one_part_one();
-    dayone::day_one_part_two();
+    dayone::day1_part1();
+    dayone::day1_part2();
     daytwo::day2_part1();
     daytwo::day2_part2();
-    daythree::puzzlefive_count_trees();
-    daythree::puzzlesix_count_trees_and_multiply();
+    daythree::day3_part1();
+    daythree::day3_part2();
     dayfour::day4_part1();
     dayfour::day4_part2();
     dayfive::day5_part1();

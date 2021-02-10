@@ -74,7 +74,7 @@ the answer you found! 🚀 ... 220
 */
 use crate::utils::*;
 
-pub fn puzzlefive_count_trees() {
+pub fn day3_part1() {
     // import the input file
     let list = read_input_file("day3_input.txt");
     let mut tree_count = 0;
@@ -104,7 +104,7 @@ pub fn puzzlefive_count_trees() {
         position += 3;
     }
     // print out the final count of trees
-    print_answer(&tree_count.to_string());
+    print_answer(3, 1, "Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?", &tree_count.to_string());
 }
 
 /*
@@ -128,7 +128,7 @@ the answer you found! 🚀 ... 2138320800
 ##################################################
 */
 
-pub fn puzzlesix_count_trees_and_multiply() {
+pub fn day3_part2() {
     // import the input file
     let mut list = read_input_file("day3_input.txt");
     let slopes: Vec<(i32, i32)> = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
@@ -174,7 +174,7 @@ pub fn puzzlesix_count_trees_and_multiply() {
         trees.push(tree_count);
     }
     // print out the final count of trees from each slope set
-    println!("{:?}", trees);
+    // println!("{:?}", trees);
     // and print out the product of the counts from each
-    print_answer(&trees.iter().product::<i32>().to_string());
+    print_answer(3, 2, "What do you get if you multiply together the number of trees encountered on each of the listed slopes?", &trees.iter().product::<i32>().to_string());
 }
