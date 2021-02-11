@@ -50,7 +50,7 @@ failing count: 292
 ##################################################
 */
 use crate::utils::*;
-
+#[allow(unused_variables)]
 pub fn day2_part1() {
     // import the input file and define the passing counter
     let list = read_input_file("day2_input.txt");
@@ -84,6 +84,7 @@ pub fn day2_part1() {
     );
 }
 
+#[allow(unused_variables)]
 pub fn day2_part2() {
     // import the input file and define the passing counter
     let list = read_input_file("day2_input.txt");
