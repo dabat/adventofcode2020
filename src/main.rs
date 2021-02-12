@@ -20,5 +20,6 @@ fn main() {
     // dayfive::day5_part2();
     // daysix::day6_part1();
     // daysix::day6_part2();
-    dayseven::day7_part1();
+    // dayseven::day7_part1();
+    dayseven::day7_part2();
 }
