@@ -72,7 +72,9 @@ dark violet bags contain no other bags.
 In this example, a single shiny gold bag must contain 126 other bags.
 
 How many individual bags are required inside your single shiny gold bag?
-
+..... Day 7 - Part 2 .....
+How many individual bags are required inside your single shiny gold bag?
+6683
 */
 use crate::utils::*;
 use std::collections::{HashMap, HashSet};
@@ -94,29 +96,6 @@ pub fn day7_part1() {
 
     let bags = read_input_file("day7_input.txt");
     let hashed_bags = hash_bag_contents(bags);
-
-    // for bag in hashed_bags {
-    //     println!("{:?}", bag);
-    // }
-
-    // let mut bag = HashMap::new();
-    // bag.insert(
-    //     "mirrored teal".to_string(),
-    //     "5 clear brown bags, 4 bright magenta bags, 1 drab brown bag, 2 dull gold bags."
-    //         .to_string(),
-    // );
-    // bag.insert(
-    //     "bright gray".to_string(),
-    //     "5 pale aqua bags, 3 shiny gold bags, 1 clear olive bag, 1 dull fuchsia bag.".to_string(),
-    // );
-    // bag.insert(
-    //     "dotted black".to_string(),
-    //     "2 vibrant white bags.".to_string(),
-    // );
-    // println!("bag: {:?}", bag);
-    // let hashed_bag = hash_bag_contents(bag);
-    // println!("hashed_bag: {:?}", hashed_bag);
-
     let mut colors: HashSet<String> = HashSet::new();
     let mut colors_to_find: Vec<String> = vec!["shiny gold".to_string()];
     let mut find_more = true;
@@ -149,12 +128,13 @@ pub fn day7_part1() {
 pub fn day7_part2() {
     let bags = read_input_file("day7_input.txt");
     let bag_hash = hash_bag_contents(bags);
+    let bag_count: u32 = count_bags(&"shiny gold", &bag_hash);
 
     print_answer(
         7,
         2,
         "How many individual bags are required inside your single shiny gold bag?",
-        "answer",
+        &bag_count.to_string(),
     );
 }
 
@@ -186,6 +166,9 @@ fn hash_bag_contents(bag: HashMap<String, String>) -> HashMap<String, HashMap<St
 
         for element in content_list {
             let bag: (&str, &str) = element.split_at(element.find(" ").unwrap());
+            if bag.1.trim() == "other" {
+                continue;
+            }
             map.insert(
                 bag.1.trim().to_string(),
                 bag.0.trim().parse::<u32>().unwrap_or_default(),
@@ -212,18 +195,17 @@ fn find_bags_containing(
     bags_of_interest
 }
 
-fn count_bags(bag_colors: Vec<String>, bags: HashMap<String, HashMap<String, u32>>) -> u32 {
-    for bag in bags {
-        if bag.0 == bag_color {
-            bags_to_count.append(bag.1.clone().keys().collect::<Vec<String>>());
+fn count_bags(color: &str, bags: &HashMap<String, HashMap<String, u32>>) -> u32 {
+    let mut count: u32 = 0;
+    let bags_inside = bags.get(color).unwrap();
+    println!("{}:{:?}", color, bags_inside);
+    if bags_inside.len() > 0 {
+        count += bags_inside.values().sum::<u32>();
+        println!("{}", count);
+        for (bag_color, bag_count) in bags_inside {
+            count += bag_count * count_bags(bag_color, bags);
         }
     }
-}
-
-fn count_bags_in(bag_map: HashMap<String, u32>) -> u32 {
-    let mut bag_counts: HashMap<String, u32> = HashMap::new();
-    for bag in bag_map {
-        bag_counts.insert(bag.0.clone(), bag.1);
-    }
-    bag_counts.values().sum()
+    println!("{} total=={}", color, count);
+    count
 }
