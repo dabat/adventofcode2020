@@ -76,6 +76,7 @@ How many individual bags are required inside your single shiny gold bag?
 How many individual bags are required inside your single shiny gold bag?
 6683
 */
+#![allow(unused)]
 use crate::utils::*;
 use std::collections::{HashMap, HashSet};
 

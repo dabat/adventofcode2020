@@ -86,6 +86,7 @@ implemented `is_valid_rules` method on Passport to solve this problem
 total passports: 285
 valid passports: 167
 */
+#![allow(unused)]
 use std::collections::HashMap;
 use std::vec;
 

@@ -1,3 +1,4 @@
+#![allow(unused)]
 pub fn print_answer(day: u32, part: u32, question: &str, answer: &str) {
     println!("{}", "-".repeat(50));
     println!("..... Day {} - Part {} .....", day, part);

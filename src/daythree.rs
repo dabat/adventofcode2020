@@ -72,6 +72,7 @@ https://adventofcode.com/2020/day/3
 43 is not correct. had the row iteration all messed up 🤦‍♂️ need to check the character in each row except the first one, but i was skipping even rows
 the answer you found! 🚀 ... 220
 */
+#![allow(unused)]
 use crate::utils::*;
 
 pub fn day3_part1() {

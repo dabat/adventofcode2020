@@ -64,6 +64,7 @@ Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1
 What is the ID of your seat?
 my seat id: 743
  */
+#![allow(unused)]
 use crate::utils::*;
 
 pub fn day5_part1() {

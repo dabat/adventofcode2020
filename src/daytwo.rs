@@ -49,6 +49,7 @@ passing count: 708
 failing count: 292
 ##################################################
 */
+#![allow(unused)]
 use crate::utils::*;
 #[allow(unused_variables)]
 pub fn day2_part1() {

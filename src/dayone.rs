@@ -22,6 +22,7 @@ the answer is [
 ] == 170098110
 ##################################################
 */
+#![allow(unused)]
 use crate::utils::print_answer;
 use itertools::Itertools;
 
