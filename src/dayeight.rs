@@ -59,13 +59,55 @@ Immediately before the program would run an instruction a second time, the value
 Run your copy of the boot code. Immediately before any instruction is executed a second time, what value is in the accumulator?
 1610
 
+--- Part Two ---
 
+After some careful analysis, you believe that exactly one instruction is corrupted.
+
+Somewhere in the program, either a jmp is supposed to be a nop, or a nop is supposed to be a jmp.
+(No acc instructions were harmed in the corruption of this boot code.)
+
+The program is supposed to terminate by attempting to execute an instruction immediately after the last instruction in the file.
+By changing exactly one jmp or nop, you can repair the boot code and make it terminate correctly.
+
+For example, consider the same program from above:
+
+nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6
+
+If you change the first instruction from nop +0 to jmp +0, it would create a single-instruction infinite loop, never leaving that instruction.
+If you change almost any of the jmp instructions, the program will still eventually find another jmp instruction and loop forever.
+
+However, if you change the second-to-last instruction (from jmp -4 to nop -4), the program terminates! The instructions are visited in this order:
+
+nop +0  | 1
+acc +1  | 2
+jmp +4  | 3
+acc +3  |
+jmp -3  |
+acc -99 |
+acc +1  | 4
+nop -4  | 5
+acc +6  | 6
+
+After the last instruction (acc +6), the program terminates by attempting to run the instruction below the last instruction in the file.
+With this change, after the program terminates, the accumulator contains the value 8 (acc +1, acc +1, acc +6).
+
+Fix the program so that it terminates normally by changing exactly one jmp (to nop) or nop (to jmp).
+What is the value of the accumulator after the program terminates?
+1703
 */
 #![allow(unused)]
 use itertools::Itertools;
 
 use crate::utils::*;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 pub fn check_this() {
     let command_list: Vec<(String, String)> = import_commands();
@@ -77,9 +119,10 @@ pub fn check_this() {
 }
 
 pub fn day8_part1(verbose_output: bool) {
-    let mut accumulator: isize = 0;
     let command_list: Vec<(String, String)> = import_commands();
+    let mut accumulator: isize = 0;
     let mut indices_visited: HashSet<usize> = HashSet::new();
+    let mut commands_visited: HashMap<usize, (String, String)> = HashMap::new();
     let mut index: usize = 0;
     let mut has_looped: bool = false;
 
@@ -87,19 +130,22 @@ pub fn day8_part1(verbose_output: bool) {
         has_looped = !indices_visited.insert(index);
         if has_looped {
             if verbose_output {
-                println!(
-                    "index:{} already visited (indices_visited.contains({})=={})",
-                    index,
-                    index,
-                    indices_visited.contains(&index)
-                );
-                let indices: Vec<usize> =
-                    indices_visited.iter().map(|i| i.clone()).sorted().collect();
-                println!("indices_visited:\n{:#?}", indices);
+                println!("{} <- index already visited", index);
+                // let indices: Vec<usize> =
+                //     indices_visited.iter().map(|i| i.clone()).sorted().collect();
+                let commands: Vec<(usize, String, String)> = commands_visited
+                    .iter()
+                    .map(|(index, command_set)| {
+                        (*index, command_set.0.clone(), command_set.1.clone())
+                    })
+                    .sorted()
+                    .collect();
+                println!("commands_visited:\n{:?}", commands);
             }
             break;
         }
         let (command, value) = &command_list[index];
+        commands_visited.insert(index, (command.clone(), value.clone()));
         let amount: isize = isize::from_str_radix(value, 10).unwrap();
         if verbose_output {
             print!("{} ({},{})", index, command, amount);
@@ -132,6 +178,53 @@ pub fn day8_part1(verbose_output: bool) {
     print_answer(8, 1, "Immediately before any instruction is executed a second time, what value is in the accumulator?", &accumulator.to_string());
 }
 
+pub fn day8_part2(verbose_output: bool) {
+    /*
+    Fix the program so that it terminates normally by changing exactly one jmp (to nop) or nop (to jmp).
+    collect all jmp and nop commands (store indices)
+    iterate and swap each command, then run the loop
+    if the program completes then we have swapped the correct command, print out the accumulator value.
+    if the program does not complete, then we swap the next command in the list
+    */
+    let command_list: Vec<(String, String)> = import_commands(); // (instruction, amount)
+    let mut swaplist: HashMap<usize, bool> = HashMap::new(); // <index, is_swapped>
+
+    for (index, (command, value)) in command_list.iter().enumerate() {
+        if command == "jmp" || command == "nop" {
+            swaplist.insert(index, false);
+        }
+    }
+    swaplist
+        .iter()
+        .sorted_by_key(|(index, is_swapped)| index.clone())
+        .map(|(index, is_swapped)| (index.clone(), is_swapped.clone()))
+        .collect::<HashMap<usize, bool>>();
+
+    // if verbose_output {
+    //     // println!("{:#?}", swaplist);
+    //     let jmpnop_commands: Vec<(usize, (String, String))> = swaplist
+    //         .iter()
+    //         .map(|(index, visited)| (*index, command_list.get(*index).unwrap().clone()))
+    //         .collect();
+    //     println!("{:?}", jmpnop_commands);
+    // }
+
+    for (swap_index, is_swapped) in swaplist {
+        let (has_ended, amount) = loop_to_end(&command_list, swap_index, verbose_output);
+        if has_ended {
+            print_answer(
+                8,
+                2,
+                "What is the value of the accumulator after the program terminates?",
+                &amount.to_string(),
+            );
+            break;
+        } else {
+            println!("{} trying the next swap...", swap_index);
+        }
+    }
+}
+
 fn import_commands() -> Vec<(String, String)> {
     read_input_file("day8_input.txt")
         .iter()
@@ -143,4 +236,72 @@ fn import_commands() -> Vec<(String, String)> {
             )
         })
         .collect()
+}
+
+fn loop_to_end(
+    command_list: &Vec<(String, String)>,
+    swap_command_index: usize,
+    verbose_output: bool,
+) -> (bool, isize) {
+    let mut accumulator: isize = 0;
+    let mut indices_visited: HashSet<usize> = HashSet::new();
+    let mut index: usize = 0;
+    let mut has_looped: bool = false;
+
+    loop {
+        has_looped = !indices_visited.insert(index);
+        if has_looped {
+            println!("{} <- index already visited", index);
+            break;
+        }
+        if index >= command_list.len() {
+            break;
+        }
+        let (command, value) = &command_list[index];
+        let amount: isize = isize::from_str_radix(value, 10).unwrap();
+        let mut command = command.clone();
+        if index == swap_command_index {
+            println!("{} swapping ({},{})", index, command, value);
+            command = swap_command(command);
+            println!("{} swapped ({},{})", index, command, value);
+        }
+        if verbose_output {
+            print!("{} ({},{})", index, command, amount);
+        }
+
+        if command == "acc" {
+            accumulator += amount;
+            index += 1;
+            if verbose_output {
+                println!(" [{}]", accumulator);
+            }
+        } else if command == "jmp" {
+            if amount.is_positive() {
+                index += amount.abs() as usize;
+            } else {
+                index -= amount.abs() as usize;
+            }
+            if verbose_output {
+                println!(" [{}]", accumulator);
+            }
+        } else if command == "nop" {
+            index += 1;
+            if verbose_output {
+                println!(" [{}]", accumulator);
+            }
+            continue;
+        }
+    }
+
+    (index >= command_list.len(), accumulator)
+}
+
+fn swap_command(mut instruction: String) -> String {
+    if instruction == "jmp" {
+        instruction = String::from("nop");
+    } else if instruction == "nop" {
+        instruction = String::from("jmp");
+    }
+
+    instruction
 }
