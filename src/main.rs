@@ -1,6 +1,7 @@
 mod dayeight;
 mod dayfive;
 mod dayfour;
+mod daynine;
 mod dayone;
 mod dayseven;
 mod daysix;
@@ -24,5 +25,6 @@ fn main() {
     // dayseven::day7_part1();
     // dayseven::day7_part2();
     // dayeight::day8_part1(true);
-    dayeight::day8_part2(true);
+    // dayeight::day8_part2(true);
+    daynine::day9_part1(true);
 }
