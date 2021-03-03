@@ -56,17 +56,14 @@ What is the first number that does not have this property?
 
 */
 #![allow(unused)]
-use std::fs::read_to_string;
-
 use crate::utils::*;
+use itertools::Itertools;
 
 pub fn day9_part1(verbose: bool) {
-    let mut searcher = Searcher::new(9, 1,
+    let mut searcher = Searcher::new( 1,
        "The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it.\nWhat is the first number that does not have this property?".to_string(),
-       None, Some(true));
-    searcher.read_input("day9_input.txt");
-    println!("{:?}", searcher.numbers);
-    searcher.print_answer();
+       None, Some(true))
+       .find_outlier();
 }
 
 struct Searcher {
@@ -84,14 +81,13 @@ struct Searcher {
 
 impl Searcher {
     pub fn new(
-        day: u32,
         part: u32,
         question: String,
         answer: Option<String>,
         verbose: Option<bool>,
     ) -> Searcher {
-        Searcher {
-            day: day,
+        let mut searcher = Searcher {
+            day: 9,
             part: part,
             question: question,
             answer: answer,
@@ -99,21 +95,56 @@ impl Searcher {
             number: 0,
             start_index: 0,
             preamble_length: 25,
-            combination_length: 0,
+            combination_length: 2,
             verbose_output: verbose,
-        }
+        };
+        searcher.read_input("day9_input.txt");
+        searcher
     }
 
-    pub fn read_input(&mut self, file_name: &str) {
+    fn read_input(&mut self, file_name: &str) {
         self.numbers = std::fs::read_to_string(file_name)
             .unwrap()
             .split("\n")
             .filter(|s| !s.is_empty())
             .map(|s| s.parse::<usize>().unwrap())
             .collect();
+        match self.verbose_output {
+            Some(true) => println!("{:?}", &self.numbers),
+            _ => {}
+        }
     }
 
-    pub fn print_answer(&self) {
-        print_answer(9, 1, &self.question, &self.number.to_string());
+    pub fn find_outlier(&mut self) {
+        let mut outlier_is_found = false;
+        while !outlier_is_found {
+            let elements_to_check = &self.numbers[..self.preamble_length];
+            self.number = self.numbers[(self.start_index + self.preamble_length)];
+            let combinations = elements_to_check
+                .into_iter()
+                .combinations(self.combination_length);
+            let mut match_is_found = false;
+            for combination in combinations {
+                if combination.into_iter().sum::<usize>() == self.number {
+                    match_is_found = true;
+                    break;
+                }
+            }
+            if !match_is_found {
+                outlier_is_found = true;
+            } else {
+                self.start_index = self.start_index + self.preamble_length;
+            }
+        }
+        self.print_answer();
+    }
+
+    fn print_answer(&self) {
+        print_answer(
+            self.day,
+            self.part,
+            &self.question,
+            &self.number.to_string(),
+        );
     }
 }
