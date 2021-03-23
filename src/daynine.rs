@@ -66,6 +66,7 @@ pub fn day9_part1(verbose: bool) {
        .find_outlier();
 }
 
+#[derive(Debug)]
 struct Searcher {
     day: u32,
     part: u32,
@@ -74,6 +75,7 @@ struct Searcher {
     numbers: Vec<usize>,
     number: usize,
     start_index: usize,
+    end_index: usize,
     preamble_length: usize,
     combination_length: usize,
     verbose_output: Option<bool>,
@@ -94,6 +96,7 @@ impl Searcher {
             numbers: Vec::new(),
             number: 0,
             start_index: 0,
+            end_index: 25,
             preamble_length: 25,
             combination_length: 2,
             verbose_output: verbose,
@@ -118,22 +121,37 @@ impl Searcher {
     pub fn find_outlier(&mut self) {
         let mut outlier_is_found = false;
         while !outlier_is_found {
-            let elements_to_check = &self.numbers[..self.preamble_length];
-            self.number = self.numbers[(self.start_index + self.preamble_length)];
+            let elements_to_check = &self.numbers[self.start_index..self.end_index];
+            self.number = self.numbers[self.end_index];
             let combinations = elements_to_check
                 .into_iter()
                 .combinations(self.combination_length);
+            match self.verbose_output {
+                Some(true) => {
+                    println!("{}:{}", self.start_index, self.number);
+                    println!("elements_to_check:{:?}", elements_to_check);
+                }
+                _ => {}
+            }
             let mut match_is_found = false;
             for combination in combinations {
-                if combination.into_iter().sum::<usize>() == self.number {
+                let sum = combination.to_owned().into_iter().sum::<usize>();
+                if sum == self.number {
                     match_is_found = true;
+                    match self.verbose_output {
+                        Some(true) => {
+                            println!("combination:{:?}=={}", combination, sum);
+                        }
+                        _ => {}
+                    }
                     break;
                 }
             }
             if !match_is_found {
                 outlier_is_found = true;
             } else {
-                self.start_index = self.start_index + self.preamble_length;
+                self.start_index += 1;
+                self.end_index += 1; //TODO move to method
             }
         }
         self.print_answer();
