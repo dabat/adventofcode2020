@@ -51,11 +51,50 @@ Here is a larger example which only considers the previous 5 numbers (and has a 
 In this example, after the 5-number preamble, almost every number is the sum of two of the previous 5 numbers;
 the only number that does not follow this rule is 127.
 
-The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it.
+The first step of attacking the weakness in the XMAS data is to find the first number in the list
+    (after the preamble) which is not the sum of two of the 25 numbers before it.
 What is the first number that does not have this property?
+542529149
 
+--- Part Two ---
+The final step in breaking the XMAS encryption relies on the invalid number you just found:
+you must find a contiguous set of at least two numbers in your list which sum to the invalid number from step 1.
+
+Again consider the above example:
+
+35
+20
+15
+25
+47
+40
+62
+55
+65
+95
+102
+117
+150
+182
+127
+219
+299
+277
+309
+576
+
+In this list, adding up all of the numbers from 15 through 40 produces the invalid number from step 1, 127.
+(Of course, the contiguous set of numbers in your actual list might be much longer.)
+
+To find the encryption weakness, add together the smallest and largest number in this contiguous range;
+in this example, these are 15 and 47, producing 62.
+
+What is the encryption weakness in your XMAS-encrypted list of numbers?
+75678618
 */
 #![allow(unused)]
+use std::vec;
+
 use crate::utils::*;
 use itertools::Itertools;
 
@@ -64,6 +103,16 @@ pub fn day9_part1(verbose: bool) {
        "The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it.\nWhat is the first number that does not have this property?".to_string(),
        None, Some(true))
        .find_outlier();
+}
+
+pub fn day9_part2(verbose: bool) {
+    let mut searcher = Searcher::new(
+        2,
+        "What is the encryption weakness in your XMAS-encrypted list of numbers?".to_string(),
+        None,
+        Some(true),
+    )
+    .find_weakness();
 }
 
 #[derive(Debug)]
@@ -150,8 +199,7 @@ impl Searcher {
             if !match_is_found {
                 outlier_is_found = true;
             } else {
-                self.start_index += 1;
-                self.end_index += 1; //TODO move to method
+                self.list_shift(1);
             }
         }
         self.print_answer();
@@ -164,5 +212,49 @@ impl Searcher {
             &self.question,
             &self.number.to_string(),
         );
+    }
+
+    fn list_shift(&mut self, by: usize) {
+        self.start_index += by;
+        self.end_index += by;
+    }
+
+    fn end_index_increment(&mut self, by: usize) {
+        self.end_index = self.start_index + by;
+    }
+
+    pub fn find_weakness(&mut self) {
+        // find a contiguous set of 2 or more numbers that sum to 542529149 and sum the lowest and highest values
+        let target: usize = 542529149;
+        let mut by: usize = 1;
+        let mut length: usize = 1;
+        self.end_index_increment(length);
+
+        while self.number == 0 {
+            if self.end_index >= self.numbers.len() {
+                length += 1;
+                self.start_index = 0;
+                self.end_index_increment(length);
+            }
+
+            let mut numbers = self.numbers[self.start_index..=self.end_index].to_owned();
+
+            if self.verbose_output == Some(true) {
+                println!("{:?}", numbers);
+            }
+
+            if numbers.iter().sum::<usize>() == target {
+                numbers.sort();
+                self.number = numbers.first().unwrap() + numbers.last().unwrap();
+                if self.verbose_output == Some(true) {
+                    println!("");
+                    println!("{:?}", numbers);
+                }
+                break;
+            } else {
+                self.list_shift(by);
+            }
+        }
+        self.print_answer();
     }
 }
